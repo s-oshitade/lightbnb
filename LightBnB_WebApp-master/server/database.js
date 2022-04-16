@@ -1,6 +1,6 @@
 const properties = require('./json/properties.json');
 const users = require('./json/users.json');
-//Connect to dayabase lightbnb
+//Connect to database lightbnb
 const { Pool } = require('pg');
 
 const pool = new Pool({
@@ -10,7 +10,10 @@ const pool = new Pool({
   database: 'lightbnb'
 })
 
-
+pool.query(`
+SELECT title FROM properties LIMIT 10;
+`)
+.then(response => {console.log(response)})
 
 /// Users
 
@@ -77,13 +80,24 @@ exports.getAllReservations = getAllReservations;
  * @param {*} limit The number of results to return.
  * @return {Promise<[{}]>}  A promise to the properties.
  */
-const getAllProperties = function(options, limit = 10) {
-  const limitedProperties = {};
-  for (let i = 1; i <= limit; i++) {
-    limitedProperties[i] = properties[i];
-  }
-  return Promise.resolve(limitedProperties);
-}
+ const getAllProperties = (options, limit = 10) => {
+  pool
+    .query(`SELECT * FROM properties LIMIT $1`, [limit])
+    .then((result) => {
+      console.log(result.rows);
+    })
+    .catch((err) => {
+      console.log(err.message);
+    });
+};
+
+// const getAllProperties = function(options, limit = 10) {
+//   const limitedProperties = {};
+//   for (let i = 1; i <= limit; i++) {
+//     limitedProperties[i] = properties[i];
+//   }
+//   return Promise.resolve(limitedProperties);
+// }
 exports.getAllProperties = getAllProperties;
 
 
