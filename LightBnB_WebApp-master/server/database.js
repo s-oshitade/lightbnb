@@ -22,17 +22,26 @@ SELECT title FROM properties LIMIT 10;
  * @param {String} email The email of the user.
  * @return {Promise<{}>} A promise to the user.
  */
-const getUserWithEmail = function(email) {
-  let user;
-  for (const userId in users) {
-    user = users[userId];
-    if (user.email.toLowerCase() === email.toLowerCase()) {
-      break;
-    } else {
-      user = null;
+const getUserWithEmail = function (email) {
+  //Define variables queryText and values 
+  const queryText = `
+    SELECT * FROM users
+    WHERE email = $1;`
+  
+  const values = [email.toLowerCase()];
+
+  return pool.query(queryText, values)
+  .then((result) => {
+    if(result.rows.length === 0){
+      console.log(null);
+      return null;
     }
-  }
-  return Promise.resolve(user);
+    console.log("user", result.rows[0]);
+    return result.rows[0];
+  })
+  .catch((err) => {
+    console.log("err", err.message);
+  });
 }
 exports.getUserWithEmail = getUserWithEmail;
 
@@ -82,7 +91,7 @@ exports.getAllReservations = getAllReservations;
  */
  const getAllProperties = (options, limit = 10) => {
   return pool
-    .query(`SELECT * FROM properties LIMIT $1`, [limit])
+    .query(`SELECT * FROM properties LIMIT $1;`, [limit])
     .then((result) => {
       console.log(result.rows);
       return result.rows;
