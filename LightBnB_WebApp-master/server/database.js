@@ -36,7 +36,7 @@ const getUserWithEmail = function (email) {
       console.log(null);
       return null;
     }
-    console.log("user", result.rows[0]);
+    console.log("userWithEmail", result.rows[0]);
     return result.rows[0];
   })
   .catch((err) => {
@@ -50,12 +50,32 @@ exports.getUserWithEmail = getUserWithEmail;
  * @param {string} id The id of the user.
  * @return {Promise<{}>} A promise to the user.
  */
-const getUserWithId = function(id) {
-  return Promise.resolve(users[id]);
+// const getUserWithId = function(id) {
+//   return Promise.resolve(users[id]);
+// }
+
+const getUserWithId = function (id) {
+  //Define variables queryText and values 
+  const queryText = `
+  SELECT * FROM users
+  WHERE id = $1;`
+  
+  const values = [id];
+  
+  return pool.query(queryText, values)
+  .then((result) => {
+    if(result.rows.length === 0){
+      console.log(null);
+      return null;
+    }
+    console.log("userWithId", result.rows[0]);
+    return result.rows[0];
+  })
+  .catch((err) => {
+    console.log("err", err.message);
+  });
 }
 exports.getUserWithId = getUserWithId;
-
-
 /**
  * Add a new user to the database.
  * @param {{name: string, password: string, email: string}} user
