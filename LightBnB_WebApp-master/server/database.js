@@ -151,7 +151,7 @@ const getAllProperties = (options, limit = 10) => {
     FROM properties
     JOIN property_reviews ON properties.id = property_id
     `;
-    /*@TODO - Consider and edge case where options.city === false and handle it.*/
+    /*@TODO - Consider the edge case where options.city === false and handle it.*/
     if (options.city) {
       queryParams.push(`%${options.city}%`);
       queryString += `WHERE city LIKE $${queryParams.length} `;
@@ -161,16 +161,16 @@ const getAllProperties = (options, limit = 10) => {
       queryString += `AND owner_id = $${queryParams.length}`;
     }
     if (options.minimum_price_per_night && options.maximum_price_per_night){
-      queryParams.push(`${options.minimum_price_per_night}`);
-      queryParams.push(`${options.maximum_price_per_night}`);
+      queryParams.push(`${options.minimum_price_per_night * 100}`);
+      queryParams.push(`${options.maximum_price_per_night * 100}`);
       queryString += `AND cost_per_night BETWEEN $${queryParams.length - 1} AND $${queryParams.length}`;
     }
     if (options.minimum_price_per_night && !options.maximum_price_per_night){
-      queryParams.push(`${options.minimum_price_per_night}`);
-      queryString += `AND cost_per_night > $${queryParams.length}`;
+      queryParams.push(`${options.minimum_price_per_night * 100}`);
+      queryString += `AND cost_per_night >= $${queryParams.length}`;
     }
     if (!options.minimum_price_per_night && options.maximum_price_per_night){
-      queryParams.push(`${options.maximum_price_per_night}`);
+      queryParams.push(`${options.maximum_price_per_night * 100}`);
       queryString += `AND cost_per_night < $${queryParams.length}`;
     }
     if (options.minimum_rating){
@@ -200,4 +200,46 @@ const addProperty = function (property) {
   properties[propertyId] = property;
   return Promise.resolve(property);
 };
+
+// const addProperty = function (property) {
+//   const queryParams = [];
+//   const values = [];
+  
+//   const propertyKeys = [
+//     "owner_id",
+//     "title",
+//     "description",
+//     "thumbnail_photo_url",
+//     "cover_photo_url",
+//     "cost_per_night",
+//     "street",
+//     "city",
+//     "province",
+//     "post_code",
+//     "country",
+//     "parking_spaces",
+//     "number_of_bathrooms",
+//     "number_of_bedrooms"
+//   ];
+
+//   for(const key of propertyKeys){
+//     if(property[key]){
+//       queryParams.push(key);
+//       values.push(`$${queryParams.length}`);
+//     }
+//   }
+  
+//   return pool
+//   .query(query, values)
+//   .then((result) => {
+//     if (result.rows.length === 0) {
+//       return null;
+//     }
+//     console.log("propertyAdded", result.rows);
+//     return result.rows;
+//   })
+//   .catch((err) => {
+//     console.log("err", err.message);
+//   });
+// };
 exports.addProperty = addProperty;
