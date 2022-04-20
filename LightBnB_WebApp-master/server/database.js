@@ -1,3 +1,4 @@
+require('dotenv').config();
 //Connect to database lightbnb
 const { Pool } = require("pg");
 
